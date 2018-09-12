@@ -67,7 +67,7 @@ services:
     network_mode: "service:validator"
     volumes:
       - ../config/remme-client-config.toml:/config/remme-client-config.toml
-    entrypoint: python3 -m remme.tp --account --atomic-swap --pubkey
+    entrypoint: poetry run python3 -m remme.tp --account --atomic-swap --pubkey
 
   remme-rest-api:
     container_name: remme_rest_api
@@ -78,7 +78,7 @@ services:
       - ${REMME_CONTAINER_EXPORTS_FOLDER:-./default_export}:/root/usr/share
       - ../config/remme-client-config.toml:/config/remme-client-config.toml
       - ../config/remme-rest-api.toml:/config/remme-rest-api.toml
-    entrypoint: python3 -m remme.rest_api
+    entrypoint: poetry run python3 -m remme.rest_api
 
 volumes:
   user_keys:
