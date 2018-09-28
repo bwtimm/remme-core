@@ -12,3 +12,4 @@ aiohttp-cors==0.7.0
 ujson==1.35
 toml==0.9.4
 pysha3==1.0.2
+ed25519==1.4.0

@@ -15,6 +15,8 @@
 
 import logging
 import binascii
+import ed25519
+
 from datetime import datetime, timedelta
 
 from cryptography.hazmat.backends import default_backend
@@ -22,7 +24,9 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.hazmat.primitives.asymmetric import ec
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
+
 
 from remme.settings import SETTINGS_STORAGE_PUB_KEY
 from remme.tp.basic import BasicHandler, get_data, get_multiple_data
@@ -31,7 +35,8 @@ from remme.tp.account import AccountHandler
 from remme.protos.account_pb2 import Account
 from remme.protos.pub_key_pb2 import (
     PubKeyStorage,
-    NewPubKeyPayload, RevokePubKeyPayload, PubKeyMethod
+    NewPubKeyPayload, RevokePubKeyPayload, PubKeyMethod,
+    SignatureType, RSASignaturePadding
 )
 from remme.settings.helper import _get_setting_value
 
@@ -81,20 +86,24 @@ class PubKeyHandler(BasicHandler):
             LOGGER.debug(f'entity_hash {transaction_payload.entity_hash}')
             raise InvalidTransaction('Entity hash or signature not a hex format')
 
-        # FIXME: For support PKCS1v15 and PSS
-        LOGGER.warn('HAZARD: Detecting padding for verification')
-        sigerr = 0
-        pkcs = padding.PKCS1v15()
-        pss = padding.PSS(mgf=padding.MGF1(hashes.SHA512()), salt_length=padding.PSS.MAX_LENGTH)
-        for _padding in (pkcs, pss):
+        if transaction_payload.signature_type == SignatureType.RSA:
+            if transaction_payload.rsa_signature_padding == RSASignaturePadding.PSS:
+                _padding = padding.PSS(mgf=padding.MGF1(hashes.SHA512()), salt_length=padding.PSS.MAX_LENGTH)
+            elif transaction_payload.rsa_signature_padding == RSASignaturePadding.PKCS1v15:
+                _padding = padding.PKCS1v15()
+
             try:
                 cert_signer_pubkey.verify(ehs_bytes, eh_bytes, _padding, hashes.SHA512())
                 LOGGER.warn('HAZARD: Padding found: %s', _padding.name)
             except InvalidSignature:
-                sigerr += 1
+                raise InvalidTransaction('Invalid signature')
 
-        if sigerr == 2:
-            raise InvalidTransaction('Invalid signature')
+        elif transaction_payload.signature_type == SignatureType.ECDSA:
+            cert_signer_pubkey.verify(ehs_bytes, eh_bytes, ec.ECDSA(hashes.SHA256()))
+
+        elif transaction_payload.signature_type == SignatureType.EdDSA:
+            verifying_key = ed25519.VerifyingKey(cert_signer_pubkey.public_bytes())
+            verifying_key.verify(ehs_bytes, eh_bytes, encoding="base64")
 
         valid_from = datetime.fromtimestamp(transaction_payload.valid_from)
         valid_to = datetime.fromtimestamp(transaction_payload.valid_to)
