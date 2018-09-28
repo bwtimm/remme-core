@@ -35,8 +35,7 @@ from remme.tp.account import AccountHandler
 from remme.protos.account_pb2 import Account
 from remme.protos.pub_key_pb2 import (
     PubKeyStorage,
-    NewPubKeyPayload, RevokePubKeyPayload, PubKeyMethod,
-    SignatureType, RSASignaturePadding
+    NewPubKeyPayload, RevokePubKeyPayload, PubKeyMethod
 )
 from remme.settings.helper import _get_setting_value
 
@@ -86,10 +85,10 @@ class PubKeyHandler(BasicHandler):
             LOGGER.debug(f'entity_hash {transaction_payload.entity_hash}')
             raise InvalidTransaction('Entity hash or signature not a hex format')
 
-        if transaction_payload.signature_type == SignatureType.RSA:
-            if transaction_payload.rsa_signature_padding == RSASignaturePadding.PSS:
+        if transaction_payload.public_key_type == NewPubKeyPayload.RSA:
+            if transaction_payload.rsa_signature_padding == NewPubKeyPayload.PSS:
                 _padding = padding.PSS(mgf=padding.MGF1(hashes.SHA512()), salt_length=padding.PSS.MAX_LENGTH)
-            elif transaction_payload.rsa_signature_padding == RSASignaturePadding.PKCS1v15:
+            elif transaction_payload.rsa_signature_padding == NewPubKeyPayload.PKCS1v15:
                 _padding = padding.PKCS1v15()
 
             try:
@@ -98,10 +97,10 @@ class PubKeyHandler(BasicHandler):
             except InvalidSignature:
                 raise InvalidTransaction('Invalid signature')
 
-        elif transaction_payload.signature_type == SignatureType.ECDSA:
+        elif transaction_payload.public_key_type == NewPubKeyPayload.ECDSA:
             cert_signer_pubkey.verify(ehs_bytes, eh_bytes, ec.ECDSA(hashes.SHA256()))
 
-        elif transaction_payload.signature_type == SignatureType.EdDSA:
+        elif transaction_payload.public_key_type == NewPubKeyPayload.EdDSA:
             verifying_key = ed25519.VerifyingKey(cert_signer_pubkey.public_bytes())
             verifying_key.verify(ehs_bytes, eh_bytes, encoding="base64")
 
