@@ -21,6 +21,7 @@ import toml
 from pkg_resources import resource_filename
 import connexion
 import aiohttp_cors
+from aiohttp_json_rpc import JsonRpc
 
 from zmq.asyncio import ZMQEventLoop
 from remme.rest_api.api_methods_switcher import RestMethodsSwitcherResolver
@@ -32,6 +33,8 @@ from remme.shared.stream import Stream
 from remme.ws import WsApplicationHandler
 from remme.ws.events import WSEventSocketHandler
 from remme.settings.default import load_toml_with_defaults
+
+from remme.rpc.node_key import get_node_public_key
 
 
 logger = logging.getLogger(__name__)
@@ -76,14 +79,22 @@ if __name__ == '__main__':
     cors.add(app.app.router.add_route('GET', '/validator/{path:.*?}',
                                       proxy))
     # Remme ws
-    stream = Stream(ZMQ_URL)
-    ws_handler = WsApplicationHandler(stream, loop=loop)
-    ws_event_handler = WSEventSocketHandler(stream, loop=loop)
-    cors.add(app.app.router.add_route('GET', '/ws/events', ws_event_handler.on_websocket_connect))
-    cors.add(app.app.router.add_route('GET', '/ws', ws_handler.subscriptions))
+    # stream = Stream(ZMQ_URL)
+    # ws_handler = WsApplicationHandler(stream, loop=loop)
+    # ws_event_handler = WSEventSocketHandler(stream, loop=loop)
+    # cors.add(app.app.router.add_route('GET', '/ws/events', ws_event_handler.on_websocket_connect))
+    # cors.add(app.app.router.add_route('GET', '/ws', ws_handler.subscriptions))
     # Remme rest api spec
-    app.add_api(resource_filename(__name__, 'openapi.yml'),
-                resolver=RestMethodsSwitcherResolver('remme.rest_api',
-                                                     cfg_rest["available_methods"]))
+    # app.add_api(resource_filename(__name__, 'openapi.yml'),
+    #             resolver=RestMethodsSwitcherResolver('remme.rest_api',
+    #                                                  cfg_rest["available_methods"]))
+
+    rpc = JsonRpc(loop=loop, max_workers=1)
+    rpc.add_methods(
+        ('', get_node_public_key),
+    )
+    cors.add(app.app.router.add_route('POST', '/rpc', rpc))
+
+    logger.info('All server parts loaded')
 
     app.run(port=arguments.port, host=arguments.bind)
