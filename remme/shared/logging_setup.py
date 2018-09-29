@@ -26,21 +26,16 @@ LOGGER = logging.getLogger(__name__)
 
 
 def setup_logging(name, verbosity=2):
-    LOG_DIR = '/var/log'
-    Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
-    Path(f'{LOG_DIR}/{name}-debug.log').touch(exist_ok=True)
-
-    log_config = get_log_config(filename='{}_log_config.toml'.format(name))
+    log_config = get_log_config(filename='log_config.toml'.format(name))
 
     if log_config is None:
-        log_config = get_log_config(filename='{}_log_config.yaml'.format(name))
+        log_config = get_log_config(filename='log_config.yaml'.format(name))
 
     if log_config is not None:
         LOGGER.info(f'Found and loaded logging configuration: {log_config}')
         log_configuration(log_config=log_config)
     else:
-        log_dir = get_log_dir()
-        log_configuration(log_dir=LOG_DIR, name=name)
+        log_configuration()
 
     init_console_logging(verbose_level=verbosity)
 
