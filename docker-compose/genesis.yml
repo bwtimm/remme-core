@@ -28,6 +28,8 @@ services:
   remme-genesis:
     container_name: remme_genesis
     image: remme/remme-core:latest
+    logging:
+      driver: none
     volumes:
       - user_keys:/etc/sawtooth/keys
       - genesis_data:/genesis/batch

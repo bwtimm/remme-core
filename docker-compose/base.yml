@@ -19,6 +19,8 @@ services:
   validator:
     container_name: remme_validator
     image: remme/sawtooth-validator:1.0.5
+    logging:
+      driver: none
     volumes:
       - validator_keys:/etc/sawtooth/keys
       - chain_data:/var/lib/sawtooth/
@@ -41,6 +43,8 @@ services:
     container_name: remme_validator_rest_api
     image: hyperledger/sawtooth-rest-api:1.0.5
     network_mode: "service:validator"
+    logging:
+      driver: none
     volumes:
       - ../config/log/validator-rest-api.toml:/etc/sawtooth/log_config.toml
       - logs:/var/log/sawtooth
@@ -50,6 +54,8 @@ services:
     container_name: remme_block_info_tp
     image: remme/sawtooth-block-info-tp:1.0.4
     network_mode: "service:validator"
+    logging:
+      driver: none
     volumes:
       - ../config/log/block-info-tp.toml:/etc/sawtooth/log_config.toml
       - logs:/var/log/sawtooth
@@ -59,6 +65,8 @@ services:
     container_name: remme_settings_tp
     image: hyperledger/sawtooth-settings-tp:1.0.5
     network_mode: "service:validator"
+    logging:
+      driver: none
     entrypoint: settings-tp -vv -C tcp://127.0.0.1:4004
     volumes:
       - ../config/log/settings-tp.toml:/etc/sawtooth/log_config.toml
@@ -68,6 +76,8 @@ services:
     container_name: remme_poet_validator_registry
     image: remme/sawtooth-poet-validator-registry:1.0.5
     network_mode: "service:validator"
+    logging:
+      driver: none
     volumes:
       - ../config/remme-genesis-config.toml:/config/remme-genesis-config.toml
       - ../config/log/poet-validator-registry.toml:/etc/sawtooth/log_config.toml
@@ -78,6 +88,8 @@ services:
     container_name: remme_tp
     image: remme/remme-core:latest
     network_mode: "service:validator"
+    logging:
+      driver: none
     volumes:
       - ../config/remme-client-config.toml:/config/remme-client-config.toml
       - ../config/log/remme-tp.toml:/etc/sawtooth/log_config.toml
@@ -88,6 +100,8 @@ services:
     container_name: remme_rest_api
     image: remme/remme-core:latest
     network_mode: "service:validator"
+    logging:
+      driver: none
     environment:
       - REMME_CONTAINER_EXPORTS_FOLDER=./default_export
     volumes:
