@@ -80,8 +80,8 @@ services:
       - ../config/remme-log-config.toml:/etc/sawtooth/log_config.toml
     entrypoint: python3 -m remme.tp --account --atomic-swap --pubkey
 
-  remme-rest-api:
-    container_name: remme_rest_api
+  remme-rpc-api:
+    container_name: remme_rpc_api
     image: remme/remme-core:latest
     network_mode: "service:validator"
     environment:
@@ -90,11 +90,11 @@ services:
       - user_keys:/etc/sawtooth/keys
       - ${REMME_CONTAINER_EXPORTS_FOLDER:-./default_export}:/root/usr/share
       - ../config/remme-client-config.toml:/config/remme-client-config.toml
-      - ../config/remme-rest-api.toml:/config/remme-rest-api.toml
+      - ../config/remme-rpc-api.toml:/config/remme-rpc-api.toml
       - ../config/remme-log-config.toml:/etc/sawtooth/log_config.toml
-      - ../config/remme-rest-api-log-config.toml:/etc/sawtooth/rest-api_log_config.toml
+      - ../config/remme-rpc-api-log-config.toml:/etc/sawtooth/rpc-api_log_config.toml
       - logs:/var/log/
-    entrypoint: python3 -m remme.rest_api
+    entrypoint: python3 -m remme.rpc_api
 
 volumes:
   user_keys:

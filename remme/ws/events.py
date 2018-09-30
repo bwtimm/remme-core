@@ -51,6 +51,7 @@ def get_value_from_key(attributes, key):
         if item.key == key:
             return item.value
 
+
 class WSEventSocketHandler(BasicWebSocketHandler):
     def __init__(self, stream, loop):
         super().__init__(stream, loop)

@@ -17,6 +17,12 @@ from aiohttp_json_rpc.exceptions import (
     RpcInternalError,
     RpcError,
 )
+from .utils import load_methods
+
+
+__all__ = (
+    'JsonRpc',
+)
 
 
 class JsonRpc(JsonRpc):
@@ -38,6 +44,11 @@ class JsonRpc(JsonRpc):
         # handle POST
         elif request.method == 'POST':
             return (await self.handle_http_request(request))
+
+    def load_from_modules(self, modules):
+        self.add_methods(
+            *(('', method) for method in load_methods('remme.rpc_api',
+                                                      modules)))
 
     async def handle_http_request(self, http_request):
         raw_msg = await http_request.read()

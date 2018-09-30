@@ -39,7 +39,7 @@ services:
       target: release
     image: remme/remme-core:latest
 
-  remme-rest-api:
+  remme-rpc-api:
     build:
       context: ..
       target: release

@@ -21,7 +21,12 @@ from sawtooth_sdk.protobuf.transaction_pb2 import Transaction
 from remme.clients.pub_key import PubKeyClient
 
 
-async def post(request):
+__all__ = (
+    'send_raw_transaction',
+)
+
+
+async def send_raw_transaction(request):
     tr = request.params[0]
     with suppress(Exception):
         tr = tr.encode('utf-8')

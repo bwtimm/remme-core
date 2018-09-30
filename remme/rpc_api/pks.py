@@ -14,6 +14,10 @@
 # ------------------------------------------------------------------------
 from remme.clients.pub_key import PubKeyClient
 
+__all__ = (
+    'get_node_public_key',
+)
+
 
 async def get_node_public_key(request):
     client = PubKeyClient()

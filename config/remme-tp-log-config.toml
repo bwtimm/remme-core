@@ -9,13 +9,13 @@ datefmt = "%H:%M:%S"
 level = "DEBUG"
 formatter = "simple"
 class = "logging.FileHandler"
-filename = "/var/log/sawtooth/rest-api-debug.log"
+filename = "/var/log/sawtooth/rpc-api-debug.log"
 
 [handlers.error]
 level = "ERROR"
 formatter = "simple"
 class = "logging.FileHandler"
-filename = "/var/log/sawtooth/rest-api-error.log"
+filename = "/var/log/sawtooth/rpc-api-error.log"
 
 [root]
 level = "ERROR"
