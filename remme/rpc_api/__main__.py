@@ -60,8 +60,8 @@ if __name__ == '__main__':
         ) for ao in cors_config["allow_origin"]
     })
     rpc = JsonRpc(loop=loop, max_workers=1)
-    rpc.load_from_modules('pks')
-    cors.add(app.router.add_route('POST', '/rpc', rpc))
+    rpc.load_from_modules(cfg_rpc['available_modules'])
+    cors.add(app.router.add_route('POST', '/', rpc))
 
     # Remme ws
     stream = Stream(ZMQ_URL)

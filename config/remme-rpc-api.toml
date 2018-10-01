@@ -6,8 +6,7 @@ port = 8080
 exports_folder = "./default_export"
 
 # Can be "*" or module names in list
-# pks,transactions
-available_modules = "pks"
+available_modules = "pkc,transaction,block_info,account"
 
 [remme.rpc_api.cors]
 # The origin, or list of origins to allow requests from.

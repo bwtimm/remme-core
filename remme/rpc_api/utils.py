@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_methods(prefix, modules='*'):
+    # TODO: Add * support
     logger.info(f'Got modules to load: {modules}')
     if modules == '*':
         raise NotImplementedError
